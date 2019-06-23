@@ -1,3 +1,4 @@
+![image](https://i.imgur.com/zzQcW4H.png)
 Fakemon refers to non-canonical Pokemon character sprites and artworks created by fans of the popular Japanese franchise. This is a discord bot which utilises some of those characters to create a new Pokemon-like experience for old and new fans alike. This project was made for Discord Hack Week 2019 and we hope that you like our little project.
 
 ## Features

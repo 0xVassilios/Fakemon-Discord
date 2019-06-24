@@ -68,6 +68,7 @@ class Adventures(commands.Cog):
 
             # Give XP to the current equipped Fakemon.
             await give_xp_to_fakemon(database=self.bot.db, user_id=ctx.author.id, amount=xp_gained)
+            # TODO: Check for level up.
 
             if random.choice([True, False]) is True:
                 fakemon = await get_random_fakemon(database=self.bot.db)

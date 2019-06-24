@@ -18,6 +18,19 @@ async def is_in_database(database, user_id):
         await database.execute("INSERT INTO userinformation VALUES($1, $2, $3, $4, $5, $6, $7, $8)", user_id, 500, 0, [], [], [], False, False)
 
 
+async def is_guild_in_database(database, server_id):
+    """Checks if a guild is in the database.
+
+    Arguments:
+        database {var} -- The variable for the database.
+        server_id {int} -- The ID of the targetted server.
+    """
+    row = await database.fetchrow("SELECT * FROM channels WHERE server = $1", server_id)
+
+    if row is None:
+        await database.execute("INSERT INTO channels VALUES($1, $2, $3)", server_id, 0, 0)
+
+
 async def get_user_information(database, user_id):
     """Gets all the information for a user from the database.
 
@@ -161,3 +174,9 @@ async def give_xp_to_fakemon(database, user_id, amount):
         current_xp += amount
 
         await database.execute('UPDATE ownedfakemon SET xp = $1 WHERE fakemonid = $2', current_xp, user["primaryfakemon"])
+
+
+async def get_random_question(database):
+    row = await database.fetchrow("SELECT * FROM trivia ORDER BY random() LIMIT 1;""")
+
+    return row["question"], row["answer"]

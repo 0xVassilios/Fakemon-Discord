@@ -10,8 +10,6 @@ class Starters(commands.Cog):
 
     @commands.group(invoke_without_command=True)
     async def starters(self, ctx):
-        await is_in_database(database=self.bot.db, user_id=ctx.author.id)
-
         all_starters = "\n".join(self.bot.all_starters_list)
 
         embed = discord.Embed(title="All Starters Available", colour=0xDC143C)
@@ -23,8 +21,6 @@ class Starters(commands.Cog):
 
     @starters.command()
     async def choose(self, ctx, *, fakemon_name: str):
-        await is_in_database(database=self.bot.db, user_id=ctx.author.id)
-
         user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
 
         if user["starter"] is True:

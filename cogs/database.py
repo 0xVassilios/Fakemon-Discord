@@ -32,18 +32,24 @@ async def get_user_information(database, user_id):
     return row
 
 
-async def add_fakemon_to_database(database, owner_id, fakemon_name):
+async def add_fakemon_to_database(database, owner_id, fakemon_name, starter):
     """Adds a fakemon to the ownedfakemon database.
 
     Arguments:
         database {var} -- The variable for the database.
         owner_id {int} -- The Discord user ID to check.
         fakemon_name {str} -- The name of the fakemon to add.
+        starter {boolean} -- Checks if it's the starter pokemon.
 
     Returns:
         int -- The ID of the fakemon that just got added.
     """
-    await database.execute('INSERT INTO ownedfakemon("ownerid", "name", "level", "xp", "moves", "iv") VALUES($1, $2, $3, $4, $5, $6) RETURNING fakemonid;', owner_id, fakemon_name, 5, 0, [], random.randint(1, 100))
+    if starter is True:
+        level = 5
+    else:
+        level = random.randint(5, 51)
+
+    await database.execute('INSERT INTO ownedfakemon("ownerid", "name", "level", "xp", "moves", "iv") VALUES($1, $2, $3, $4, $5, $6) RETURNING fakemonid;', owner_id, fakemon_name, level, 0, [], random.randint(1, 100))
 
     fakemon_id = await database.fetchrow('SELECT fakemonid FROM ownedfakemon ORDER BY fakemonid DESC LIMIT 1')
 
@@ -98,6 +104,16 @@ async def add_adventure(database, user_id, duration):
     await database.execute('INSERT INTO adventures VALUES($1, $2, $3)', user_id, time.time(), duration * 60)
 
 
+async def remove_adventure(database, user_id):
+    """Removes the adventure from the database.
+
+    Arguments:
+        database {var} -- The variable for the database.
+        user_id {int} -- The ID of the user whose adventure ended.
+    """
+    await database.execute('DELETE FROM adventures WHERE userid = $1', user_id)
+
+
 async def get_adventure_information(database, user_id):
     """Retrieves the information about the adventure.
 
@@ -130,7 +146,7 @@ async def give_money(database, user_id, amount):
 
 async def give_xp_to_fakemon(database, user_id, amount):
     """Gives a certain amount of XP to a fakemon.
-    
+
     Arguments:
         database {var} -- The variable for the database.
         user_id {int} -- The ID of the user who owns the fakemon.

@@ -29,11 +29,11 @@ async def run():
     bot.db = db
 
     try:
-        await bot.start(passwords["bots"])
+        await bot.start(passwords["bot"])
     except KeyboardInterrupt:
         await bot.logout()
 
-initial_extensions = []
+initial_extensions = ['cogs.pokedex', 'cogs.starters']
 
 if __name__ == '__main__':
     for extension in initial_extensions:
@@ -42,6 +42,9 @@ if __name__ == '__main__':
         except Exception as e:
             print(f'Failed to load extension {extension}.', file=sys.stderr)
             traceback.print_exc()
+
+bot.all_starters_list = ["Cuboo", "Sizzabre", "Platyke", "Limbetaur", "Jersinge", "Quendro", "Dinaut", "Coalidi", "Camodden", "Cuberry", "Wyburn", "Glaucute", "Shrubria", "Walpyre", "Pakisea", "Kumizar", "Duikin", "Barkrest", "Seedrake", "Balmox", "Shtryke",
+                         "Chidrupe", "Shelight", "Squirtama", "Coltivus", "Aspyre", "Soakitt", "Sweetyke", "Frisun", "Cresshor", "Belladino", "Whelpyre", "Bubbrine", "Galeaf", "Elephlint", "Creeklaw", "Kitnip", "Lutred", "Kalflow", "Anamary", "Charret", "Swinerve"]
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(run())

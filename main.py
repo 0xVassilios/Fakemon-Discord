@@ -5,7 +5,7 @@ import asyncpg
 import traceback
 import sys
 import json
-from cogs.database import is_in_database
+from cogs.database import is_in_database, is_guild_in_database
 
 with open("passwords.json", "r", encoding="UTF8") as file:
     passwords = json.load(file)
@@ -24,6 +24,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     await is_in_database(database=bot.db, user_id=message.author.id)
+    await is_guild_in_database(database=bot.db, server_id=message.guild.id)
     await bot.process_commands(message)
 
 
@@ -40,7 +41,8 @@ async def run():
     except KeyboardInterrupt:
         await bot.logout()
 
-initial_extensions = ['cogs.pokedex', 'cogs.starters', 'cogs.adventures']
+initial_extensions = ['cogs.pokedex', 'cogs.starters',
+                      'cogs.adventures', 'cogs.locations', 'cogs.wildfakemon']
 
 if __name__ == '__main__':
     for extension in initial_extensions:

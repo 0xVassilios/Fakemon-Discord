@@ -30,7 +30,7 @@ class Starters(commands.Cog):
             return
 
         if fakemon_name.capitalize() in self.bot.all_starters_list:
-            fakemon_id = await add_fakemon_to_database(database=self.bot.db, owner_id=ctx.author.id, fakemon_name=fakemon_name)
+            fakemon_id = await add_fakemon_to_database(database=self.bot.db, owner_id=ctx.author.id, fakemon_name=fakemon_name, starter=True)
 
             await add_fakemon_to_inventory(database=self.bot.db, owner_id=ctx.author.id, fakemon_id=fakemon_id)
 

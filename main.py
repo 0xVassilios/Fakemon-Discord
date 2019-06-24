@@ -5,6 +5,7 @@ import asyncpg
 import traceback
 import sys
 import json
+from cogs.database import is_in_database
 
 with open("passwords.json", "r", encoding="UTF8") as file:
     passwords = json.load(file)
@@ -20,6 +21,12 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name='with other Fakemon!'))
 
 
+@bot.event
+async def on_message(message):
+    await is_in_database(database=bot.db, user_id=message.author.id)
+    await bot.process_commands(message)
+
+
 async def run():
     credentials = {"user": "postgres", "password": passwords["database"],
                    "database": "fakemon", "host": "127.0.0.1"}
@@ -33,7 +40,7 @@ async def run():
     except KeyboardInterrupt:
         await bot.logout()
 
-initial_extensions = ['cogs.pokedex', 'cogs.starters']
+initial_extensions = ['cogs.pokedex', 'cogs.starters', 'cogs.adventures']
 
 if __name__ == '__main__':
     for extension in initial_extensions:

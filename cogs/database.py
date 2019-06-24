@@ -2,6 +2,7 @@ import asyncio
 import asyncpg
 import random
 import time
+from cogs.fakemon import get_fakemon_information
 
 
 async def is_in_database(database, user_id):
@@ -109,3 +110,38 @@ async def get_adventure_information(database, user_id):
     """
     row = await database.fetchrow('SELECT * FROM adventures WHERE userid = $1', user_id)
     return row
+
+
+async def give_money(database, user_id, amount):
+    """Gives a specified amount of money to a user.
+
+    Arguments:
+        database {var} -- The variable for the database.
+        user_id {int} -- The ID of the user that will receive the money.
+        amount {int} -- Amount of money earned.
+    """
+    user = await get_user_information(database=database, user_id=user_id)
+
+    current_money = user["money"]
+    current_money += amount
+
+    await database.execute('UPDATE userinformation SET money = $1 WHERE userid = $2', current_money, user_id)
+
+
+async def give_xp_to_fakemon(database, user_id, amount):
+    """Gives a certain amount of XP to a fakemon.
+    
+    Arguments:
+        database {var} -- The variable for the database.
+        user_id {int} -- The ID of the user who owns the fakemon.
+        amount {int} -- The amount of XP gained.
+    """
+    user = await get_user_information(database=database, user_id=user_id)
+
+    if user["primaryfakemon"] != 0:
+        fakemon = await get_fakemon_information(database=database, fakemon_id=user["primaryfakemon"])
+
+        current_xp = fakemon["xp"]
+        current_xp += amount
+
+        await database.execute('UPDATE ownedfakemon SET xp = $1 WHERE fakemonid = $2', current_xp, user["primaryfakemon"])

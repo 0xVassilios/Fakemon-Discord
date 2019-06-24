@@ -95,3 +95,17 @@ async def add_adventure(database, user_id, duration):
         duration {int} -- The duration of the adventure in minutes.
     """
     await database.execute('INSERT INTO adventures VALUES($1, $2, $3)', user_id, time.time(), duration * 60)
+
+
+async def get_adventure_information(database, user_id):
+    """Retrieves the information about the adventure.
+
+    Arguments:
+        database {var} -- The variable for the database.
+        user_id {int} -- The ID of the user.
+
+    Returns:
+        row -- All the information from the database's row.
+    """
+    row = await database.fetchrow('SELECT * FROM adventures WHERE userid = $1', user_id)
+    return row

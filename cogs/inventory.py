@@ -76,15 +76,26 @@ class Inventory(commands.Cog):
 
             if primary_fakemon_id != 0:
                 fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=primary_fakemon_id)
+
+                row = await self.bot.db.fetchrow('SELECT * FROM allfakemon WHERE name = $1', fakemon["name"])
+
+                fakemon_type = row["type"]
+
                 xp_for_levelup = await calculate_exp_needed(level=fakemon['level'])
+
                 inventory_message_list.append(
-                    f"**{fakemon['name']}** (ID: {fakemon['fakemonid']} | Primary)| Level: {fakemon['level']} | EXP: {fakemon['xp']}/{xp_for_levelup} | IV: {fakemon['iv']}")
+                    f"**{fakemon['name']}** (ID: {fakemon['fakemonid']} | Primary)| **Level**: {fakemon['level']} | **Type**: {fakemon_type} | **EXP**: {fakemon['xp']}/{xp_for_levelup} | **IV**: {fakemon['iv']}")
 
             for fakemon_id in inventory:
                 fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=fakemon_id)
+
+                row = await self.bot.db.fetchrow('SELECT * FROM allfakemon WHERE name = $1', fakemon["name"])
+
+                fakemon_type = row["type"]
+
                 xp_for_levelup = await calculate_exp_needed(level=fakemon['level'])
                 inventory_message_list.append(
-                    f"**{fakemon['name']}**  (ID: {fakemon['fakemonid']})| Level: {fakemon['level']} | EXP: {fakemon['xp']}/{xp_for_levelup} | IV: {fakemon['iv']}")
+                    f"**{fakemon['name']}**  (ID: {fakemon['fakemonid']})| **Level**: {fakemon['level']} | **Type**: {fakemon_type} | **EXP**: {fakemon['xp']}/{xp_for_levelup} | **IV**: {fakemon['iv']}")
 
         elif inventory_type.lower() == "items":
             item_list = await self.bot.db.fetchrow('SELECT * FROM userinformation WHERE userid = $1', ctx.author.id)
@@ -100,7 +111,7 @@ class Inventory(commands.Cog):
             for item_id in move_list["moveinventory"]:
                 item = await self.bot.db.fetchrow('SELECT * FROM moves WHERE moveid = $1', item_id)
                 inventory_message_list.append(
-                    f"**{item['movename']}** | **Type**: {item['movetype']} | **Power**: {item['movepower']} | **Accuracy**: {item['moveaccuracy']}")
+                    f"**{item['movename']}** (ID: {item['moveid']})| **Type**: {item['movetype']} | **Power**: {item['movepower']} | **Accuracy**: {item['moveaccuracy']}")
 
         inventory_message = "\n".join(inventory_message_list)
 

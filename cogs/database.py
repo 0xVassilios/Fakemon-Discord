@@ -73,6 +73,13 @@ async def add_fakemon_to_database(database, owner_id, fakemon_name, starter):
 
 
 async def remove_fakemon_from_inventory(database, owner_id, fakemon_id):
+    """Removes a fakemon from a player's inventory.
+
+    Arguments:
+        database {var} -- The variable for the database.
+        owner_id {int} -- The ID of the owner of the fakemon.
+        fakemon_id {int} -- The ID of the fakemon to remove.
+    """
     user = await get_user_information(database=database, user_id=owner_id)
 
     if fakemon_id in user["fakemoninventory"]:

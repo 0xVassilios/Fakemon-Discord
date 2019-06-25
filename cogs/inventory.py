@@ -91,6 +91,14 @@ class Inventory(commands.Cog):
                 inventory_message_list.append(
                     f"**{item['itemname']}** | {item['itemdescription']}")
 
+        elif inventory_type.lower() == "moves":
+            move_list = await self.bot.db.fetchrow('SELECT * FROM userinformation WHERE userid = $1', ctx.author.id)
+
+            for item_id in move_list["moveinventory"]:
+                item = await self.bot.db.fetchrow('SELECT * FROM moves WHERE moveid = $1', item_id)
+                inventory_message_list.append(
+                    f"**{item['movename']}** | **Type**: {item['movetype']} | **Power**: {item['movepower']} | **Accuracy**: {item['moveaccuracy']}")
+
         inventory_message = "\n".join(inventory_message_list)
         embed.add_field(
             name=f"Your {inventory_type.capitalize()} Inventory:", value=inventory_message)

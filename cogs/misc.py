@@ -25,7 +25,6 @@ class Misc(commands.Cog):
                 title=f"You don't have enough ₱ to send.", colour=0xDC143C)
             embed.set_footer(text=f"{ctx.author.name}'s bank account.")
             await ctx.send(embed=embed)
-            print("test")
 
 
 def setup(bot):

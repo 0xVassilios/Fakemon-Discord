@@ -44,8 +44,49 @@ class Misc(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def givefakemon(self, ctx, user: discord.User, fakemon_id: int):
-        pass
+    async def equip(self, ctx, fakemon_id: int):
+        user_information = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
+        fakemon_inventory = user_information["fakemoninventory"]
+        current_primary = user_information["primaryfakemon"]
+
+        if fakemon_id not in fakemon_inventory:
+            embed = discord.Embed(
+                title=f"You don't have this Fakemon!", colour=0xDC143C)
+            await ctx.send(embed=embed)
+            return
+
+        if current_primary != 0:
+            await add_fakemon_to_inventory(database=self.bot.db, owner_id=ctx.author.id, fakemon_id=current_primary)
+
+        await remove_fakemon_from_inventory(database=self.bot.db, owner_id=ctx.author.id, fakemon_id=fakemon_id)
+
+        await self.bot.db.execute('UPDATE userinformation SET primaryfakemon = $1 WHERE userid = $2', fakemon_id, ctx.author.id)
+
+        embed = discord.Embed(
+            title=f"You have equipped ID {fakemon_id} as your primary!", colour=0xDC143C)
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def stats(self, ctx, fakemon_id: int):
+        fakemon_stats = await get_fakemon_information(database=self.bot.db, fakemon_id=fakemon_id)
+        fakemon_information = await self.bot.db.fetchrow('SELECT * FROM allfakemon WHERE name = $1', fakemon_stats["name"])
+
+        inventory_message_list = []
+
+        embed = discord.Embed(colour=0xDC143C)
+
+        move_list = await self.bot.db.fetchrow('SELECT * FROM userinformation WHERE userid = $1', ctx.author.id)
+
+        for item_id in move_list["moveinventory"]:
+            item = await self.bot.db.fetchrow('SELECT * FROM moves WHERE moveid = $1', item_id)
+            inventory_message_list.append(
+                f"**{item['movename']}** (ID: {item['moveid']})| **Type**: {item['movetype']} | **Power**: {item['movepower']} | **Accuracy**: {item['moveaccuracy']}")
+
+        inventory_message = "\n".join(inventory_message_list)
+        embed.set_thumbnail(url=fakemon_information["imageurl"])
+        embed.add_field(name="Pokedex Information",
+                        value=f'**Name**: {fakemon_stats["name"]}\n**Type**: {fakemon_information["type"]}\n**Level**: {fakemon_stats["level"]}\n**Moves**: {inventory_message}\n**IV**: {fakemon_stats["iv"]}')
+        await ctx.send(embed=embed)
 
 
 def setup(bot):

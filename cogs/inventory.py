@@ -60,8 +60,11 @@ class Inventory(commands.Cog):
             await ctx.send(embed=embed)
             return
 
-        first_page = 1 + (10 * (int(page) - 1)) - 1
-        second_page = 10 + (10 * (int(page) - 1)) + 1
+        first_page = (int(page) * 10) - 11
+
+        if first_page < 0:
+            first_page = 0
+        second_page = (int(page) * 10)
 
         inventory = inventory[first_page:second_page]
         inventory_message_list = []
@@ -75,7 +78,7 @@ class Inventory(commands.Cog):
                 fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=primary_fakemon_id)
                 xp_for_levelup = await calculate_exp_needed(level=fakemon['level'])
                 inventory_message_list.append(
-                    f"**{fakemon['name']}** (ID: {fakemon['fakemonid']})| Level: {fakemon['level']} | EXP: {fakemon['xp']}/{xp_for_levelup} | IV: {fakemon['iv']}")
+                    f"**{fakemon['name']}** (ID: {fakemon['fakemonid']} | Primary)| Level: {fakemon['level']} | EXP: {fakemon['xp']}/{xp_for_levelup} | IV: {fakemon['iv']}")
 
             for fakemon_id in inventory:
                 fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=fakemon_id)
@@ -100,6 +103,7 @@ class Inventory(commands.Cog):
                     f"**{item['movename']}** | **Type**: {item['movetype']} | **Power**: {item['movepower']} | **Accuracy**: {item['moveaccuracy']}")
 
         inventory_message = "\n".join(inventory_message_list)
+
         embed.add_field(
             name=f"Your {inventory_type.capitalize()} Inventory:", value=inventory_message)
         embed.set_footer(text=f"{page} out of {int(total_pages)} pages.")

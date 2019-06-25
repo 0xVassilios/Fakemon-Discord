@@ -9,7 +9,7 @@ class Starters(commands.Cog):
         self.bot = bot
 
     @commands.group(invoke_without_command=True)
-    async def starters(self, ctx):
+    async def starter(self, ctx):
         all_starters = "\n".join(self.bot.all_starters_list)
 
         embed = discord.Embed(title="All Starters Available", colour=0xDC143C)
@@ -19,7 +19,7 @@ class Starters(commands.Cog):
             text="Use 'f!starter choose (fakemon)' to choose your starter!")
         await ctx.send(embed=embed)
 
-    @starters.command()
+    @starter.command()
     async def choose(self, ctx, *, fakemon_name: str):
         user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
 

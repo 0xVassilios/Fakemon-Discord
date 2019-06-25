@@ -65,7 +65,7 @@ async def add_fakemon_to_database(database, owner_id, fakemon_name, starter):
         xp_needed = await calculate_exp_needed(level=level)
         xp = random.randint(0, level + 1)
 
-    await database.execute('INSERT INTO ownedfakemon("ownerid", "name", "level", "xp", "moves", "iv") VALUES($1, $2, $3, $4, $5, $6) RETURNING fakemonid;', owner_id, fakemon_name, level, xp, [], random.randint(1, 100))
+    await database.execute('INSERT INTO ownedfakemon("ownerid", "name", "level", "xp", "moves", "iv") VALUES($1, $2, $3, $4, $5, $6) RETURNING fakemonid;', owner_id, fakemon_name, level, xp, [], random.randint(50, 100))
 
     fakemon_id = await database.fetchrow('SELECT fakemonid FROM ownedfakemon ORDER BY fakemonid DESC LIMIT 1')
 

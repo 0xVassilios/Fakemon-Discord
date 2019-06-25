@@ -36,7 +36,8 @@ class WildFakemon(commands.Cog):
 
                     def check(m):
                         m = m.content.split(" ")
-                        return m[0] == "f!catch" and " ".join(m[1:]) == answer
+                        user_answer = " ".join(m[1:])
+                        return m[0] == "f!catch" and user_answer.lower() == answer
 
                     try:
                         message = await self.bot.wait_for('message', check=check, timeout=60.0)

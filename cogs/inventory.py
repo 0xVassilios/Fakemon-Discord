@@ -77,11 +77,19 @@ class Inventory(commands.Cog):
                 inventory_message_list.append(
                     f"**{fakemon['name']}** | Level: {fakemon['level']} | EXP: {fakemon['xp']}/{xp_for_levelup} | IV: {fakemon['iv']}")
 
-        for fakemon_id in inventory:
-            fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=fakemon_id)
-            xp_for_levelup = await calculate_exp_needed(level=fakemon['level'])
-            inventory_message_list.append(
-                f"**{fakemon['name']}** | Level: {fakemon['level']} | EXP: {fakemon['xp']}/{xp_for_levelup} | IV: {fakemon['iv']}")
+            for fakemon_id in inventory:
+                fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=fakemon_id)
+                xp_for_levelup = await calculate_exp_needed(level=fakemon['level'])
+                inventory_message_list.append(
+                    f"**{fakemon['name']}** | Level: {fakemon['level']} | EXP: {fakemon['xp']}/{xp_for_levelup} | IV: {fakemon['iv']}")
+
+        elif inventory_type.lower() == "items":
+            item_list = await self.bot.db.fetchrow('SELECT * FROM userinformation WHERE userid = $1', ctx.author.id)
+
+            for item_id in item_list["iteminventory"]:
+                item = await self.bot.db.fetchrow('SELECT * FROM items WHERE itemid = $1', item_id)
+                inventory_message_list.append(
+                    f"**{item['itemname']}** | {item['itemdescription']}")
 
         inventory_message = "\n".join(inventory_message_list)
         embed.add_field(

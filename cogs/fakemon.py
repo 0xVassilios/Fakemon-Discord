@@ -1,6 +1,13 @@
 import asyncio
 import asyncpg
 from cogs.database import *
+from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
+import random
+import requests
+import json
+from io import BytesIO
 
 
 async def get_random_fakemon(database):
@@ -47,3 +54,52 @@ async def calculate_exp_needed(level):
         return int((level ** 3 * ((1911 - 10 * level) / 3)) / 500)
     else:
         return int((level ** 3 * (160 - level)) / 100)
+
+
+async def generate_battle_scene(one_name, one_level, one_hp, one_max_hp, two_name, two_level, two_hp, two_max_hp):
+    with open("pokedex.json", "r", encoding="UTF8") as file:
+        pokedex = json.load(file)
+
+    battle_scene = Image.open("cogs/battlescene.png")
+
+    one_hp_bar = Image.open(f"hp_bars/{one_hp}.png")
+    one_sprite = Image.open(BytesIO(requests.get(
+        pokedex[one_name]["Image URL"]).content))
+    one_sprite.thumbnail((150, 150))
+
+    two_hp_bar = Image.open(f"hp_bars/{two_hp}.png")
+    two_sprite = Image.open(
+        BytesIO(requests.get(pokedex[two_name]["Image URL"]).content))
+    two_sprite.thumbnail((150, 150))
+
+    # Health bars
+    battle_scene.paste(one_hp_bar, (31, 39), mask=one_hp_bar)
+    battle_scene.paste(two_hp_bar, (315, 171), mask=two_hp_bar)
+
+    # Sprites
+    battle_scene.paste(one_sprite, (74, 105), mask=one_sprite)
+    battle_scene.paste(two_sprite, (343, 8), mask=two_sprite)
+
+    # Names
+    draw = ImageDraw.Draw(battle_scene)
+    font = ImageFont.truetype('cogs/battlefont.ttf', 25)
+    draw.text(
+        (41, 44), f"{one_name}", (0, 0, 0), font=font)
+    draw.text(
+        (323, 176), f"{two_name}", (0, 0, 0), font=font)
+
+    # Levels
+    font = ImageFont.truetype('cogs/battlefont.ttf', 25)
+    draw.text(
+        (158, 49), f"Level  {one_level}", (0, 0, 0), font=font)
+    draw.text(
+        (442, 182), f"Level  {two_level}", (0, 0, 0), font=font)
+
+    # Health Text
+    font = ImageFont.truetype('cogs/battlefont.ttf', 25)
+    draw.text(
+        (132, 87), f"HP: {one_hp[1:]}/{one_max_hp}", (0, 0, 0), font=font)
+    draw.text(
+        (415, 220), f"HP: {two_hp[1:]}/{two_max_hp}", (0, 0, 0), font=font)
+
+    return battle_scene

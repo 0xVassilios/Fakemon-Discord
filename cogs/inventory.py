@@ -27,7 +27,7 @@ class Inventory(commands.Cog):
             await ctx.send(embed=embed)
             return
 
-        total_pages = int(len(inventory) / 10) + 1
+        total_pages = int(len(inventory) / 9) + 1
 
         if int(page) > int(total_pages):
             embed = discord.Embed(
@@ -35,11 +35,11 @@ class Inventory(commands.Cog):
             await ctx.send(embed=embed)
             return
 
-        first_page = (int(page) * 10) - 11
+        first_page = (int(page) * 9) - 10
 
         if first_page < 0:
             first_page = 0
-        second_page = (int(page) * 10)
+        second_page = (int(page) * 9)
 
         inventory_length = len(inventory)
         inventory = inventory[first_page:second_page]

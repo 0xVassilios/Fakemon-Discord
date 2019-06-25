@@ -2,7 +2,7 @@ import asyncio
 import asyncpg
 import random
 import time
-from cogs.fakemon import get_fakemon_information, calculate_exp_needed
+from cogs.fakemon import get_fakemon_information, calculate_exp_needed, check_levelup
 
 
 async def is_in_database(database, user_id):
@@ -194,6 +194,8 @@ async def give_xp_to_fakemon(database, user_id, amount):
         current_xp += amount
 
         await database.execute('UPDATE ownedfakemon SET xp = $1 WHERE fakemonid = $2', current_xp, user["primaryfakemon"])
+
+        await check_levelup(database=database, fakemon_id=fakemon["fakemonid"])
 
 
 async def get_random_question(database):

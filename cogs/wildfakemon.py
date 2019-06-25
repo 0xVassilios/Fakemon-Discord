@@ -16,7 +16,6 @@ class WildFakemon(commands.Cog):
 
     async def generate_fakemon(self):
         while True:
-            print("test")
             for guild in self.bot.guilds:
                 try:
                     row = await self.bot.db.fetchrow('SELECT * FROM channels WHERE server = $1', guild.id)

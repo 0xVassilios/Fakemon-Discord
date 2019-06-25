@@ -40,7 +40,7 @@ class WildFakemon(commands.Cog):
                         return m[0] == "f!catch" and user_answer.lower() == answer
 
                     try:
-                        message = await self.bot.wait_for('message', check=check, timeout=60.0)
+                        message = await self.bot.wait_for('message', check=check, timeout=180.0)
                         fakemon_id = await add_fakemon_to_database(database=self.bot.db, owner_id=message.author.id, fakemon_name=fakemon["name"], starter=False)
                         await add_fakemon_to_inventory(database=self.bot.db, owner_id=message.author.id, fakemon_id=fakemon_id)
 

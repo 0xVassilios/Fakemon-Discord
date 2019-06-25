@@ -44,7 +44,7 @@ class Trade(commands.Cog):
             move_list = []
 
             for move in fakemon["moves"]:
-                row = self.bot.db.fetchrow(
+                row = await self.bot.db.fetchrow(
                     'SELECT * FROM moves WHERE moveid = $1', move)
                 move_list.append(row["movename"])
 

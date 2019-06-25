@@ -16,41 +16,16 @@ class Inventory(commands.Cog):
         await ctx.send(embed=embed)
 
     @inventory.command()
-    async def show(self, ctx, inventory_type: str, page: int = 1):
-        if inventory_type.lower() not in ["fakemon", "moves", "items"]:
-            embed = discord.Embed(
-                title="You chose an invalid inventory type!", colour=0xDC143C)
-            await ctx.send(embed=embed)
-            return
-
+    async def fakemon(self, ctx, page: int = 1):
         user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
 
-        if inventory_type.lower() == "fakemon":
-            inventory = user["fakemoninventory"]
-            # Checks if he has anything.
-            if inventory == []:
-                embed = discord.Embed(
-                    title="You have no fakemon!", colour=0xDC143C)
-                await ctx.send(embed=embed)
-                return
-
-        elif inventory_type.lower() == "moves":
-            inventory = user["moveinventory"]
-            # Checks if he has anything.
-            if inventory == []:
-                embed = discord.Embed(
-                    title="You have no moves!", colour=0xDC143C)
-                await ctx.send(embed=embed)
-                return
-
-        elif inventory_type.lower() == "items":
-            inventory = user["iteminventory"]
-            # Checks if he has anything.
-            if inventory == []:
-                embed = discord.Embed(
-                    title="You have no items!", colour=0xDC143C)
-                await ctx.send(embed=embed)
-                return
+        inventory = user["fakemoninventory"]
+        # Checks if he has anything.
+        if inventory == []:
+            embed = discord.Embed(
+                title="You have no fakemon!", colour=0xDC143C)
+            await ctx.send(embed=embed)
+            return
 
         total_pages = int(len(inventory) / 10) + 1
 
@@ -66,58 +41,136 @@ class Inventory(commands.Cog):
             first_page = 0
         second_page = (int(page) * 10)
 
+        inventory_length = len(inventory)
         inventory = inventory[first_page:second_page]
         inventory_message_list = []
 
         embed = discord.Embed(colour=0xDC143C)
 
-        if inventory_type.lower() == "fakemon":
-            primary_fakemon_id = user["primaryfakemon"]
+        primary_fakemon_id = user["primaryfakemon"]
 
-            if primary_fakemon_id != 0:
-                fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=primary_fakemon_id)
+        if primary_fakemon_id != 0:
+            fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=primary_fakemon_id)
 
-                row = await self.bot.db.fetchrow('SELECT * FROM allfakemon WHERE name = $1', fakemon["name"])
+            row = await self.bot.db.fetchrow('SELECT * FROM allfakemon WHERE name = $1', fakemon["name"])
 
-                fakemon_type = row["type"]
+            fakemon_type = row["type"]
 
-                xp_for_levelup = await calculate_exp_needed(level=fakemon['level'])
+            xp_for_levelup = await calculate_exp_needed(level=fakemon['level'])
 
-                inventory_message_list.append(
-                    f"**{fakemon['name']}** (ID: {fakemon['fakemonid']} | Primary)| **Level**: {fakemon['level']} | **Type**: {fakemon_type} | **EXP**: {fakemon['xp']}/{xp_for_levelup} | **IV**: {fakemon['iv']}")
+            inventory_message_list.append(
+                f"**{fakemon['name']}** (ID: {fakemon['fakemonid']} | Primary)| **Level**: {fakemon['level']} | **Type**: {fakemon_type} | **EXP**: {fakemon['xp']}/{xp_for_levelup} | **IV**: {fakemon['iv']}")
 
-            for fakemon_id in inventory:
-                fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=fakemon_id)
+        for fakemon_id in inventory:
+            fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=fakemon_id)
 
-                row = await self.bot.db.fetchrow('SELECT * FROM allfakemon WHERE name = $1', fakemon["name"])
+            row = await self.bot.db.fetchrow('SELECT * FROM allfakemon WHERE name = $1', fakemon["name"])
 
-                fakemon_type = row["type"]
+            fakemon_type = row["type"]
 
-                xp_for_levelup = await calculate_exp_needed(level=fakemon['level'])
-                inventory_message_list.append(
-                    f"**{fakemon['name']}**  (ID: {fakemon['fakemonid']})| **Level**: {fakemon['level']} | **Type**: {fakemon_type} | **EXP**: {fakemon['xp']}/{xp_for_levelup} | **IV**: {fakemon['iv']}")
-
-        elif inventory_type.lower() == "items":
-            item_list = await self.bot.db.fetchrow('SELECT * FROM userinformation WHERE userid = $1', ctx.author.id)
-
-            for item_id in item_list["iteminventory"]:
-                item = await self.bot.db.fetchrow('SELECT * FROM items WHERE itemid = $1', item_id)
-                inventory_message_list.append(
-                    f"**{item['itemname']}** | {item['itemdescription']}")
-
-        elif inventory_type.lower() == "moves":
-            move_list = await self.bot.db.fetchrow('SELECT * FROM userinformation WHERE userid = $1', ctx.author.id)
-
-            for item_id in move_list["moveinventory"]:
-                item = await self.bot.db.fetchrow('SELECT * FROM moves WHERE moveid = $1', item_id)
-                inventory_message_list.append(
-                    f"**{item['movename']}** (ID: {item['moveid']})| **Type**: {item['movetype']} | **Power**: {item['movepower']} | **Accuracy**: {item['moveaccuracy']}")
+            xp_for_levelup = await calculate_exp_needed(level=fakemon['level'])
+            inventory_message_list.append(
+                f"**{fakemon['name']}**  (ID: {fakemon['fakemonid']})| **Level**: {fakemon['level']} | **Type**: {fakemon_type} | **EXP**: {fakemon['xp']}/{xp_for_levelup} | **IV**: {fakemon['iv']}")
 
         inventory_message = "\n".join(inventory_message_list)
 
         embed.add_field(
-            name=f"Your {inventory_type.capitalize()} Inventory:", value=inventory_message)
-        embed.set_footer(text=f"{page} out of {int(total_pages)} pages.")
+            name=f"Your Fakemon Inventory:", value=inventory_message)
+        embed.set_footer(
+            text=f"{page} out of {int(total_pages)} pages. You have {inventory_length} Fakemon.")
+        await ctx.send(embed=embed)
+
+    @inventory.command()
+    async def items(self, ctx, page: int = 1):
+        user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
+        inventory = user["iteminventory"]
+        # Checks if he has anything.
+        if inventory == []:
+            embed = discord.Embed(
+                title="You have no items!", colour=0xDC143C)
+            await ctx.send(embed=embed)
+            return
+
+        total_pages = int(len(inventory) / 10) + 1
+
+        if int(page) > int(total_pages):
+            embed = discord.Embed(
+                title="You don't have this many pages!", colour=0xDC143C)
+            await ctx.send(embed=embed)
+            return
+
+        first_page = (int(page) * 10) - 11
+
+        if first_page < 0:
+            first_page = 0
+        second_page = (int(page) * 10)
+
+        inventory_length = len(inventory)
+        inventory = inventory[first_page:second_page]
+        inventory_message_list = []
+
+        embed = discord.Embed(colour=0xDC143C)
+
+        item_list = await self.bot.db.fetchrow('SELECT * FROM userinformation WHERE userid = $1', ctx.author.id)
+
+        for item_id in item_list["iteminventory"]:
+            item = await self.bot.db.fetchrow('SELECT * FROM items WHERE itemid = $1', item_id)
+            inventory_message_list.append(
+                f"**{item['itemname']}** | {item['itemdescription']}")
+
+        inventory_message = "\n".join(inventory_message_list)
+
+        embed.add_field(
+            name=f"Your Item Inventory:", value=inventory_message)
+        embed.set_footer(
+            text=f"{page} out of {int(total_pages)} pages. You have {inventory_length} items.")
+        await ctx.send(embed=embed)
+
+    @inventory.command()
+    async def moves(self, ctx, page: int = 1):
+        user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
+
+        inventory = user["moveinventory"]
+        # Checks if he has anything.
+        if inventory == []:
+            embed = discord.Embed(
+                title="You have no moves!", colour=0xDC143C)
+            await ctx.send(embed=embed)
+            return
+
+        total_pages = int(len(inventory) / 10) + 1
+
+        if int(page) > int(total_pages):
+            embed = discord.Embed(
+                title="You don't have this many pages!", colour=0xDC143C)
+            await ctx.send(embed=embed)
+            return
+
+        first_page = (int(page) * 10) - 11
+
+        if first_page < 0:
+            first_page = 0
+        second_page = (int(page) * 10)
+
+        inventory_length = len(inventory)
+        inventory = inventory[first_page:second_page]
+        inventory_message_list = []
+
+        embed = discord.Embed(colour=0xDC143C)
+
+        move_list = await self.bot.db.fetchrow('SELECT * FROM userinformation WHERE userid = $1', ctx.author.id)
+
+        for item_id in move_list["moveinventory"]:
+            item = await self.bot.db.fetchrow('SELECT * FROM moves WHERE moveid = $1', item_id)
+            inventory_message_list.append(
+                f"**{item['movename']}** (ID: {item['moveid']})| **Type**: {item['movetype']} | **Power**: {item['movepower']} | **Accuracy**: {item['moveaccuracy']}")
+
+        inventory_message = "\n".join(inventory_message_list)
+
+        embed.add_field(
+            name=f"Your Move Inventory:", value=inventory_message)
+        embed.set_footer(
+            text=f"{page} out of {int(total_pages)} pages. You have {inventory_length} moves.")
         await ctx.send(embed=embed)
 
 

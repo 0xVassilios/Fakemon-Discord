@@ -72,6 +72,16 @@ async def add_fakemon_to_database(database, owner_id, fakemon_name, starter):
     return fakemon_id["fakemonid"]
 
 
+async def remove_fakemon_from_inventory(database, owner_id, fakemon_id):
+    user = await get_user_information(database=database, user_id=owner_id)
+
+    if fakemon_id in user["fakemoninventory"]:
+        inventory = user["fakemoninventory"]
+        inventory.remove(fakemon_id)
+
+    await database.execute('UPDATE userinformation SET fakemoninventory = $1 WHERE userid = $2', inventory, owner_id)
+
+
 async def add_fakemon_to_inventory(database, owner_id, fakemon_id):
     """Adds a fakemon to a user's inventory.
 

@@ -80,7 +80,7 @@ class Adventures(commands.Cog):
             embed = discord.Embed(
                 title=f'Your adventure has finished!', colour=0xDC143C)
             embed.add_field(name="Rewards:",
-                            value=f"• Money: {money_gained}\n•EXP: {xp_gained}\n•Fakemon: {fakemon_gained}")
+                            value=f"• Money: {money_gained}\n• EXP: {xp_gained}\n• Fakemon: {fakemon_gained}")
             await ctx.send(embed=embed)
             await remove_adventure(database=self.bot.db, user_id=ctx.author.id)
 

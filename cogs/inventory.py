@@ -75,13 +75,13 @@ class Inventory(commands.Cog):
                 fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=primary_fakemon_id)
                 xp_for_levelup = await calculate_exp_needed(level=fakemon['level'])
                 inventory_message_list.append(
-                    f"**{fakemon['name']}** | Level: {fakemon['level']} | EXP: {fakemon['xp']}/{xp_for_levelup} | IV: {fakemon['iv']}")
+                    f"**{fakemon['name']}** (ID: {fakemon['fakemonid']})| Level: {fakemon['level']} | EXP: {fakemon['xp']}/{xp_for_levelup} | IV: {fakemon['iv']}")
 
             for fakemon_id in inventory:
                 fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=fakemon_id)
                 xp_for_levelup = await calculate_exp_needed(level=fakemon['level'])
                 inventory_message_list.append(
-                    f"**{fakemon['name']}** | Level: {fakemon['level']} | EXP: {fakemon['xp']}/{xp_for_levelup} | IV: {fakemon['iv']}")
+                    f"**{fakemon['name']}**  (ID: {fakemon['fakemonid']})| Level: {fakemon['level']} | EXP: {fakemon['xp']}/{xp_for_levelup} | IV: {fakemon['iv']}")
 
         elif inventory_type.lower() == "items":
             item_list = await self.bot.db.fetchrow('SELECT * FROM userinformation WHERE userid = $1', ctx.author.id)

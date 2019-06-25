@@ -42,7 +42,7 @@ async def run():
         await bot.logout()
 
 initial_extensions = ['cogs.pokedex', 'cogs.starters',
-                      'cogs.adventures', 'cogs.locations', 'cogs.wildfakemon', 'cogs.inventory', 'cogs.shop']
+                      'cogs.adventures', 'cogs.locations', 'cogs.wildfakemon', 'cogs.inventory', 'cogs.shop', 'cogs.trade']
 
 if __name__ == '__main__':
     for extension in initial_extensions:

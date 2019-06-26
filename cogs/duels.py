@@ -240,6 +240,7 @@ class Duels(commands.Cog):
                     try:
                         message = await self.bot.wait_for('message', check=check)
                         move_used = message.content.capitalize()
+                        await message.delete()
 
                         if random.randint(0, int(moves[move_used]["Accuracy"])) <= int(moves[move_used]["Accuracy"]):
                             hit = True

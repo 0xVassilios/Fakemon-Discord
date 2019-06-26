@@ -6,11 +6,13 @@ import traceback
 import sys
 import json
 from cogs.database import is_in_database, is_guild_in_database
+from discord.ext.commands import CommandNotFound
 
 with open("passwords.json", "r", encoding="UTF8") as file:
     passwords = json.load(file)
 
 bot = commands.Bot(command_prefix="f!")
+bot.remove_command('help')
 
 
 @bot.event
@@ -28,6 +30,13 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, CommandNotFound):
+        return
+    raise error
+
+
 async def run():
     credentials = {"user": "postgres", "password": passwords["database"],
                    "database": "fakemon", "host": "127.0.0.1"}
@@ -42,7 +51,7 @@ async def run():
         await bot.logout()
 
 initial_extensions = ['cogs.pokedex', 'cogs.starters',
-                      'cogs.adventures', 'cogs.locations', 'cogs.wildfakemon', 'cogs.inventory', 'cogs.shop', 'cogs.trade', 'cogs.learn_moves', 'cogs.misc', 'cogs.duels']
+                      'cogs.adventures', 'cogs.locations', 'cogs.wildfakemon', 'cogs.inventory', 'cogs.shop', 'cogs.trade', 'cogs.learn_moves', 'cogs.misc', 'cogs.duels', 'cogs.help']
 
 if __name__ == '__main__':
     for extension in initial_extensions:

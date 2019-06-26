@@ -226,7 +226,7 @@ class Duels(commands.Cog):
         # This is the first message that is sent which shows the two contestants and also we get a placeholder for future text.
         embed = discord.Embed(
             title=f"{ctx.author.name} VS. {enemy.name}", colour=0xDC143C)
-        await battle_channel.send(embed=embed)
+        text = await battle_channel.send(embed=embed)
 
         """
         For some reason our first while loop was having bugs and all but this one seems to be working so there it is.

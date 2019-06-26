@@ -88,8 +88,63 @@ class Duels(commands.Cog):
 
     @commands.command()
     async def duel(self, ctx, enemy: discord.User):
-        # TODO: Add it so both people have to accept.
-        # TODO: Check if the server has set a channel.
+        user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
+        enemy_info = await get_user_information(database=self.bot.db, user_id=enemy.id)
+
+        if user["primaryfakemon"] == 0 or enemy_info["primaryfakemon"] == 0:
+            embed = discord.Embed(
+                title=f'{ctx.author.name if user["primaryfakemon"] == 0 else enemy.name} doesn\'t have a Fakemon equipped!', colour=0xDC143C)
+            embed.set_footer(text="Use `f!equip (Fakemon ID)`")
+            await ctx.send(embed=embed)
+            return
+
+        guild_info = await self.bot.db.fetchrow('SELECT * FROM channels WHERE server = $1', ctx.guild.id)
+
+        if guild_info["battles"] == "0":
+            embed = discord.Embed(
+                title=f'This guild doesn\'t have a battle category!', colour=0xDC143C)
+            embed.set_footer(
+                text="An admin has to execute `f!set location battles (category name)`")
+            await ctx.send(embed=embed)
+            return
+
+        embed = discord.Embed(
+            title=f"Battle Request: {ctx.author.name} <=> {enemy.name}", colour=0xDC143C)
+
+        battle_request = await ctx.send(embed=embed)
+        await battle_request.add_reaction("✅")
+
+        users_battling = [ctx.author.id, enemy.id]
+
+        def check(reaction, user):
+            return user.id in users_battling and str(reaction.emoji) == "✅"
+
+        try:
+            for i in range(2):
+                reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
+                users_battling.remove(user.id)
+        except asyncio.TimeoutError:
+            await battle_request.clear_reactions()
+            embed = discord.Embed(
+                title=f"The battle request has timed out.", colour=0xDC143C)
+            await battle_request.edit(embed=embed)
+            return
+
+        await battle_request.clear_reactions()
+
+        guild = ctx.message.guild
+
+        overwrites = {
+            ctx.message.author: discord.PermissionOverwrite(send_messages=True),
+            enemy: discord.PermissionOverwrite(send_messages=True),
+            guild.default_role: discord.PermissionOverwrite(
+                send_messages=False)
+        }
+
+        channel = discord.utils.get(
+            guild.categories, id=guild_info["battles"])
+
+        battle_channel = await guild.create_text_channel(f'battles-{ctx.author.name}-vs-{enemy.name}', overwrites=overwrites, category=channel)
 
         # PREPARATIONS
         db = await get_battle_information(database=self.bot.db, user=ctx.author.id, enemy=enemy.id)
@@ -107,12 +162,12 @@ class Duels(commands.Cog):
 
         final_buffer = await self.bot.loop.run_in_executor(None, fn)
         file = discord.File(filename="bs.png", fp=final_buffer)
-        battle_image = await ctx.send(file=file)
+        battle_image = await battle_channel.send(file=file)
 
         # Displays the message to get the place holder.
         embed = discord.Embed(
             title=f"{ctx.author.name} VS. {enemy.name}", colour=0xDC143C)
-        text = await ctx.send(embed=embed)
+        text = await battle_channel.send(embed=embed)
 
         while True:
             if db["User"]["HP"] <= 0:
@@ -144,13 +199,13 @@ class Duels(commands.Cog):
             file = discord.File(filename="bs.png", fp=final_buffer)
             await text.delete()
             await battle_image.delete()
-            battle_image = await ctx.send(file=file)
+            battle_image = await battle_channel.send(file=file)
 
             while True:
                 if db[user_turn]["Moves"] == [] or timeout:
                     embed = discord.Embed(
                         title=f'{db[user_turn]["Name"]} has no moves!\n{db[user_turn]["Name"]} has used Tackle!', colour=0xDC143C)
-                    text = await ctx.send(embed=embed)
+                    text = await battle_channel.send(embed=embed)
 
                     db[enemy_user]["HP"] -= 10
                     break
@@ -172,7 +227,7 @@ class Duels(commands.Cog):
                         title=f'It\'s {current_user.name}\'s turn!', colour=0xDC143C)
                     embed.add_field(name="Choose your move!", value=moves_text)
                     embed.set_footer(text="TIP: Just type the name!")
-                    await ctx.send(embed=embed)
+                    await battle_channel.send(embed=embed)
 
                     # Waits for the move.
                     def check(m):
@@ -195,7 +250,7 @@ class Duels(commands.Cog):
 
                         embed = discord.Embed(
                             title=f'{db["User"]["Name"]} has used {move_used}!\n{"It hit the opponent for " + str(damage) + " damage." if hit == True else "It missed!"}', colour=0xDC143C)
-                        text = await ctx.send(embed=embed)
+                        text = await battle_channel.send(embed=embed)
 
                         break
                     except asyncio.TimeoutError:
@@ -209,13 +264,16 @@ class Duels(commands.Cog):
         file = discord.File(filename="bs.png", fp=final_buffer)
         await text.delete()
         await battle_image.delete()
-        battle_image = await ctx.send(file=file)
+        battle_image = await battle_channel.send(file=file)
 
         embed = discord.Embed(
             title=f'{db["Enemy"]["Name"] if db["User"]["HP"] <= 0 else db["User"]["Name"]} has won the battle!', colour=0xDC143C)
-        await ctx.send(embed=embed)
+        await battle_channel.send(embed=embed)
 
         # Add rewards.
+
+        await asyncio.sleep(5)
+        await battle_channel.delete()
 
 
 def setup(bot):

@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import asyncio
+import typing
 
 
 class Locations(commands.Cog):
@@ -16,20 +17,32 @@ class Locations(commands.Cog):
 
     @set.command()
     @commands.has_permissions(administrator=True)
-    async def location(self, ctx, event: str, channel: discord.TextChannel):
+    async def location(self, ctx, event: str, *, channel: typing.Union[discord.TextChannel, str]):
         if event.lower() not in ["wilderness", "battles"]:
             embed = discord.Embed(
                 title="You can use either battles or wilderness as your event.", colour=0xDC143C)
             await ctx.send(embed=embed)
             return
 
+        if event.lower() == "wilderness" and type(channel) != discord.TextChannel:
+            embed = discord.Embed(
+                title="Wilderness must be a text channel!", colour=0xDC143C)
+            await ctx.send(embed=embed)
+            return
+
+        if event.lower() == "battles" and type(int(channel)) != int:
+            embed = discord.Embed(
+                title="Battles must be a category ID!", colour=0xDC143C)
+            await ctx.send(embed=embed)
+            return
+
         if event.lower() == "battles":
-            await self.bot.db.execute('UPDATE channels SET battles = $1 WHERE server = $2', channel.id, ctx.guild.id)
+            await self.bot.db.execute('UPDATE channels SET battles = $1 WHERE server = $2', int(channel), ctx.guild.id)
         else:
             await self.bot.db.execute('UPDATE channels SET wilderness = $1 WHERE server = $2', channel.id, ctx.guild.id)
 
         embed = discord.Embed(
-            title=f"You have set {channel.name} as your {event.lower()} channel.", colour=0xDC143C)
+            title=f"You have set {channel.name if event.lower() == 'wilderness' else f'ID {channel}'} as your {event.lower()} channel.", colour=0xDC143C)
         await ctx.send(embed=embed)
 
 

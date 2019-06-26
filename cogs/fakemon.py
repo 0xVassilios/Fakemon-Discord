@@ -1,13 +1,8 @@
 import asyncio
 import asyncpg
 from cogs.database import *
-from PIL import Image
-from PIL import ImageFont
-from PIL import ImageDraw
-import random
-import requests
+import aiohttp
 import json
-from io import BytesIO
 
 
 async def get_random_fakemon(database):
@@ -56,50 +51,39 @@ async def calculate_exp_needed(level):
         return int((level ** 3 * (160 - level)) / 100)
 
 
-async def generate_battle_scene(one_name, one_level, one_hp, one_max_hp, two_name, two_level, two_hp, two_max_hp):
+async def get_battle_information(database, user, enemy):
+    def calculate_hp(level, iv):
+        return int((iv + 2 + 200 * level) / 100) + 10
+
     with open("pokedex.json", "r", encoding="UTF8") as file:
         pokedex = json.load(file)
 
-    battle_scene = Image.open("cogs/battlescene.png")
+    user_info = await database.fetchrow("SELECT * FROM userinformation WHERE userid = $1", user)
+    enemy_info = await database.fetchrow("SELECT * FROM userinformation WHERE userid = $1", enemy)
 
-    one_hp_bar = Image.open(f"hp_bars/{one_hp}.png")
-    one_sprite = Image.open(BytesIO(requests.get(
-        pokedex[one_name]["Image URL"]).content))
-    one_sprite.thumbnail((150, 150))
+    if user_info["primaryfakemon"] == 0 or enemy_info["primaryfakemon"] == 0:
+        return False
 
-    two_hp_bar = Image.open(f"hp_bars/{two_hp}.png")
-    two_sprite = Image.open(
-        BytesIO(requests.get(pokedex[two_name]["Image URL"]).content))
-    two_sprite.thumbnail((150, 150))
+    user_fakemon = await get_fakemon_information(database=database, fakemon_id=user_info["primaryfakemon"])
+    enemy_fakemon = await get_fakemon_information(database=database, fakemon_id=enemy_info["primaryfakemon"])
 
-    # Health bars
-    battle_scene.paste(one_hp_bar, (31, 39), mask=one_hp_bar)
-    battle_scene.paste(two_hp_bar, (315, 171), mask=two_hp_bar)
+    battle_db = {
+        "User": {
+            "Name": user_fakemon["name"],
+            "Level": user_fakemon["level"],
+            "HP": calculate_hp(user_fakemon["level"], user_fakemon["iv"]),
+            "Max HP": calculate_hp(user_fakemon["level"], user_fakemon["iv"]),
+            "Moves": user_fakemon["moves"],
+            "Sprite": pokedex[user_fakemon["name"]]["Image URL"]
+        },
+        "Enemy": {
+            "Name": enemy_fakemon["name"],
+            "Level": enemy_fakemon["level"],
+            "HP": calculate_hp(enemy_fakemon["level"], enemy_fakemon["iv"]),
+            "Max HP": calculate_hp(enemy_fakemon["level"], enemy_fakemon["iv"]),
+            "Moves": enemy_fakemon["moves"],
+            "Sprite": pokedex[enemy_fakemon["name"]]["Image URL"]
+        }
+    }
 
-    # Sprites
-    battle_scene.paste(one_sprite, (74, 105), mask=one_sprite)
-    battle_scene.paste(two_sprite, (343, 8), mask=two_sprite)
-
-    # Names
-    draw = ImageDraw.Draw(battle_scene)
-    font = ImageFont.truetype('cogs/battlefont.ttf', 25)
-    draw.text(
-        (41, 44), f"{one_name}", (0, 0, 0), font=font)
-    draw.text(
-        (323, 176), f"{two_name}", (0, 0, 0), font=font)
-
-    # Levels
-    font = ImageFont.truetype('cogs/battlefont.ttf', 25)
-    draw.text(
-        (158, 49), f"Level  {one_level}", (0, 0, 0), font=font)
-    draw.text(
-        (442, 182), f"Level  {two_level}", (0, 0, 0), font=font)
-
-    # Health Text
-    font = ImageFont.truetype('cogs/battlefont.ttf', 25)
-    draw.text(
-        (132, 87), f"HP: {one_hp[1:]}/{one_max_hp}", (0, 0, 0), font=font)
-    draw.text(
-        (415, 220), f"HP: {two_hp[1:]}/{two_max_hp}", (0, 0, 0), font=font)
-
-    return battle_scene
+    return battle_db

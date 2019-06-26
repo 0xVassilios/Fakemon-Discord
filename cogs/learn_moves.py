@@ -9,6 +9,13 @@ class LearnMoves(commands.Cog):
 
     @commands.command()
     async def teach(self, ctx, fakemon_id: int, move_id: int):
+        """Teaches a move to a Fakemon.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+            fakemon_id {int} -- The ID of the fakemon that needs to learn the move.
+            move_id {int} -- The ID of the move which you are going to teach.
+        """
         fakemon_information = await get_fakemon_information(database=self.bot.db, fakemon_id=fakemon_id)
 
         user_information = await get_user_information(database=self.bot.db, user_id=ctx.author.id)

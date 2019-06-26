@@ -31,6 +31,11 @@ class Shop(commands.Cog):
 
     @commands.group(invoke_without_command=True)
     async def shop(self, ctx):
+        """Base command for the shop, shows all items available.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+        """
         shop_items = await self.bot.db.fetch('SELECT * FROM shop')
         embed = discord.Embed(colour=0xDC143C)
         shop_text = ""
@@ -44,6 +49,12 @@ class Shop(commands.Cog):
 
     @shop.command()
     async def buy(self, ctx, *, item_id: int):
+        """Used to buy a product.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+            item_id {int} -- The ID of the item you want to purchase.
+        """
         item = await self.bot.db.fetchrow('SELECT * FROM shop WHERE itemid = $1', item_id)
 
         user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)

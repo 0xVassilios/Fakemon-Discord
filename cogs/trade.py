@@ -10,6 +10,17 @@ class Trade(commands.Cog):
 
     @commands.command()
     async def trade(self, ctx, your_fakemon_id: int, other_user: discord.User, other_fakemon_id: int):
+        """Trades your Fakemon for another user's Fakemon.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+            your_fakemon_id {int} -- Your Fakemon's ID.
+            other_user {discord.User} -- The other user.
+            other_fakemon_id {int} -- The other user's Fakemon ID.
+
+        Returns:
+            [type] -- [description]
+        """
         user_one_information = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
         fakemon_one_information = await get_fakemon_information(database=self.bot.db, fakemon_id=your_fakemon_id)
 

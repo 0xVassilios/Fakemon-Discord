@@ -10,6 +10,11 @@ class Starters(commands.Cog):
 
     @commands.group(invoke_without_command=True)
     async def starter(self, ctx):
+        """Displays all currently available starters.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+        """
         all_starters = "\n".join(self.bot.all_starters_list)
 
         embed = discord.Embed(title="All Starters Available", colour=0xDC143C)
@@ -21,6 +26,12 @@ class Starters(commands.Cog):
 
     @starter.command()
     async def choose(self, ctx, *, fakemon_name: str):
+        """Chooses a starter.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+            fakemon_name {str} -- The name of the Fakemon.
+        """
         user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
 
         if user["starter"] is True:

@@ -1,7 +1,7 @@
-import discord
-from discord.ext import commands
 from cogs.database import get_user_information, get_fakemon_information
 from cogs.fakemon import calculate_exp_needed
+from discord.ext import commands
+import discord
 
 
 class Inventory(commands.Cog):
@@ -10,6 +10,11 @@ class Inventory(commands.Cog):
 
     @commands.group(invoke_without_command=True)
     async def inventory(self, ctx):
+        """The base command for the inventory command.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+        """
         embed = discord.Embed(colour=0xDC143C)
         embed.add_field(name="Inventory System",
                         value="In order to use your inventory write \"f!inventory show (fakemon/items/moves) (page number)\".")
@@ -17,18 +22,29 @@ class Inventory(commands.Cog):
 
     @inventory.command()
     async def fakemon(self, ctx, page: int = 1):
+        """Displays all your current fakemon into pages.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+
+        Keyword Arguments:
+            page {int} -- The page number. (default: {1})
+        """
         user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
 
         inventory = user["fakemoninventory"]
-        # Checks if he has anything.
+
+        # We check if the user has any Fakemon at all.
         if inventory == [] and user["primaryfakemon"] == 0:
             embed = discord.Embed(
                 title="You have no fakemon!", colour=0xDC143C)
             await ctx.send(embed=embed)
             return
 
+        # Calculate the total pages with 9 entries per page.
         total_pages = int(len(inventory) / 9) + 1
 
+        # Check if the user has specified an available page.
         if int(page) > int(total_pages):
             embed = discord.Embed(
                 title="You don't have this many pages!", colour=0xDC143C)
@@ -49,6 +65,7 @@ class Inventory(commands.Cog):
 
         primary_fakemon_id = user["primaryfakemon"]
 
+        # If the primary fakemon isn't 0 (meaning it doesn't exist) then we display it.
         if primary_fakemon_id != 0:
             fakemon = await get_fakemon_information(database=self.bot.db, fakemon_id=primary_fakemon_id)
 
@@ -82,6 +99,14 @@ class Inventory(commands.Cog):
 
     @inventory.command()
     async def items(self, ctx, page: int = 1):
+        """Displays the items.
+
+        Arguments:
+            ctx {var} -- The context of the page.
+
+        Keyword Arguments:
+            page {int} -- The number of th page to display. (default: {1})
+        """
         user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
         inventory = user["iteminventory"]
         # Checks if he has anything.
@@ -128,6 +153,14 @@ class Inventory(commands.Cog):
 
     @inventory.command()
     async def moves(self, ctx, page: int = 1):
+        """Displays all available moves.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+
+        Keyword Arguments:
+            page {int} -- The number of the page to display. (default: {1})
+        """
         user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
 
         inventory = user["moveinventory"]

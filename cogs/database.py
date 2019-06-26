@@ -1,8 +1,8 @@
+from cogs.fakemon import get_fakemon_information, calculate_exp_needed, check_levelup
 import asyncio
 import asyncpg
 import random
 import time
-from cogs.fakemon import get_fakemon_information, calculate_exp_needed, check_levelup
 
 
 async def is_in_database(database, user_id):
@@ -199,6 +199,11 @@ async def give_xp_to_fakemon(database, user_id, amount):
 
 
 async def get_random_question(database):
+    """Retrieves a random question from the trivia table.
+
+    Arguments:
+        database {var} -- The variable for the database.
+    """
     row = await database.fetchrow("SELECT * FROM trivia ORDER BY random() LIMIT 1;""")
 
     return row["question"], row["answer"]

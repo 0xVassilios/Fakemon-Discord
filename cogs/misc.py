@@ -9,6 +9,11 @@ class Misc(commands.Cog):
 
     @commands.command()
     async def money(self, ctx):
+        """Displays the current user's money.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+        """
         user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
 
         embed = discord.Embed(
@@ -18,6 +23,13 @@ class Misc(commands.Cog):
 
     @commands.command()
     async def pay(self, ctx, payee: discord.User, amount: int):
+        """Used to pay another player a certain amount of money.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+            payee {discord.User} -- The user who is going to receive the money.
+            amount {int} -- The amount of money given.
+        """
         user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
 
         payee_information = await get_user_information(database=self.bot.db, user_id=payee.id)
@@ -45,6 +57,12 @@ class Misc(commands.Cog):
 
     @commands.command()
     async def equip(self, ctx, fakemon_id: int):
+        """Equips a pokemon as your main one.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+            fakemon_id {int} -- The ID of the Fakemon you want to have.
+        """
         user_information = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
         fakemon_inventory = user_information["fakemoninventory"]
         current_primary = user_information["primaryfakemon"]
@@ -68,6 +86,12 @@ class Misc(commands.Cog):
 
     @commands.command()
     async def stats(self, ctx, fakemon_id: int):
+        """Shows the statistics of any owned Fakemon.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+            fakemon_id {int} -- The ID of the fakemon.
+        """
         fakemon_stats = await get_fakemon_information(database=self.bot.db, fakemon_id=fakemon_id)
         fakemon_information = await self.bot.db.fetchrow('SELECT * FROM allfakemon WHERE name = $1', fakemon_stats["name"])
 

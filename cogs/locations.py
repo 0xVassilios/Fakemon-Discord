@@ -10,6 +10,11 @@ class Locations(commands.Cog):
 
     @commands.group(invoke_without_command=True)
     async def set(self, ctx):
+        """Base command.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+        """
         embed = discord.Embed(colour=0xDC143C)
         embed.add_field(name="Set Event Locations",
                         value="You are able to set in which location you can see certain events. Use '!fset location (battles/wilderness) (@Channel)'.")
@@ -18,6 +23,13 @@ class Locations(commands.Cog):
     @set.command()
     @commands.has_permissions(administrator=True)
     async def location(self, ctx, event: str, *, channel: typing.Union[discord.TextChannel, str]):
+        """Switches the location of wilderness or battles in the database.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+            event {str} -- The type of event. (Battles or Wilderness.)
+            channel {typing.Union[discord.TextChannel, str]} -- The channel/category which you are going to implement.
+        """
         if event.lower() not in ["wilderness", "battles"]:
             embed = discord.Embed(
                 title="You can use either battles or wilderness as your event.", colour=0xDC143C)

@@ -11,6 +11,12 @@ class Pokedex(commands.Cog):
 
     @commands.command()
     async def pokedex(self, ctx, fakemon_name: typing.Optional[str]):
+        """Displays the information of a Fakemon.
+
+        Arguments:
+            ctx {var} -- The context of the message.
+            fakemon_name {typing.Optional[str]} -- The name of the fakemon. Case insensitive.
+        """
         if fakemon_name is None:
             fakemon = await get_random_fakemon(database=self.bot.db)
         else:

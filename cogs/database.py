@@ -28,7 +28,7 @@ async def is_guild_in_database(database, server_id):
     row = await database.fetchrow("SELECT * FROM channels WHERE server = $1", server_id)
 
     if row is None:
-        await database.execute("INSERT INTO channels VALUES($1, $2, $3)", server_id, 0, "0")
+        await database.execute("INSERT INTO channels VALUES($1, $2, $3)", server_id, 0, 0)
 
 
 async def get_user_information(database, user_id):

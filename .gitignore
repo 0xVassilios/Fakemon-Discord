@@ -1,2 +1,4 @@
 passwords.json
 battle_scene.py
+.vscode
+cogs/__pycache__

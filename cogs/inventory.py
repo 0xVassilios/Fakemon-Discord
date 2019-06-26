@@ -21,7 +21,7 @@ class Inventory(commands.Cog):
 
         inventory = user["fakemoninventory"]
         # Checks if he has anything.
-        if inventory == []:
+        if inventory == [] and user["primaryfakemon"] == 0:
             embed = discord.Embed(
                 title="You have no fakemon!", colour=0xDC143C)
             await ctx.send(embed=embed)
@@ -77,7 +77,7 @@ class Inventory(commands.Cog):
         embed.add_field(
             name=f"Your Fakemon Inventory:", value=inventory_message)
         embed.set_footer(
-            text=f"{page} out of {int(total_pages)} pages. You have {inventory_length} Fakemon.")
+            text=f"{page} out of {int(total_pages)} pages. You have {inventory_length + 1} Fakemon.")
         await ctx.send(embed=embed)
 
     @inventory.command()

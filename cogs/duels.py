@@ -132,6 +132,10 @@ class Duels(commands.Cog):
 
         await battle_request.clear_reactions()
 
+        embed = discord.Embed(
+            title=f"A channel called `battles-{ctx.author.name}-vs-{enemy.name}` has been created.", colour=0xDC143C)
+        await battle_request.edit(embed=embed)
+
         guild = ctx.message.guild
 
         overwrites = {
@@ -227,7 +231,7 @@ class Duels(commands.Cog):
                         title=f'It\'s {current_user.name}\'s turn!', colour=0xDC143C)
                     embed.add_field(name="Choose your move!", value=moves_text)
                     embed.set_footer(text="TIP: Just type the name!")
-                    await battle_channel.send(embed=embed)
+                    moves_text = await battle_channel.send(embed=embed)
 
                     # Waits for the move.
                     def check(m):
@@ -251,6 +255,7 @@ class Duels(commands.Cog):
                         embed = discord.Embed(
                             title=f'{db["User"]["Name"]} has used {move_used}!\n{"It hit the opponent for " + str(damage) + " damage." if hit == True else "It missed!"}', colour=0xDC143C)
                         text = await battle_channel.send(embed=embed)
+                        await moves_text.delete()
 
                         break
                     except asyncio.TimeoutError:
@@ -270,10 +275,47 @@ class Duels(commands.Cog):
             title=f'{db["Enemy"]["Name"] if db["User"]["HP"] <= 0 else db["User"]["Name"]} has won the battle!', colour=0xDC143C)
         await battle_channel.send(embed=embed)
 
-        # Add rewards.
+        if db["User"]["HP"] <= 0:
+            winner = "Enemy"
+            loser = "User"
+        else:
+            winner = "User"
+            loser = "Enemy"
 
-        await asyncio.sleep(5)
+        # Add rewards.
+        exp = int((1.5 * random.randint(10, 201) *
+                   db[loser]["Level"] * 1.5) / 1.5 * 7)
+        money = int(exp / 2)
+
+        if winner == "User":
+            await give_money(database=self.bot.db, user_id=ctx.author.id, amount=money)
+            await give_money(database=self.bot.db, user_id=enemy.id, amount=int(money / 2))
+
+            await give_xp_to_fakemon(database=self.bot.db, user_id=ctx.author.id, amount=exp)
+            await give_xp_to_fakemon(database=self.bot.db, user_id=enemy.id, amount=int(exp / 2))
+        else:
+            await give_money(database=self.bot.db, user_id=enemy.id, amount=money)
+            await give_money(database=self.bot.db, user_id=ctx.author.id, amount=int(money / 2))
+
+            await give_xp_to_fakemon(database=self.bot.db, user_id=enemy.id, amount=exp)
+            await give_xp_to_fakemon(database=self.bot.db, user_id=ctx.author.id, amount=int(exp / 2))
+
+        embed = discord.Embed(colour=0xDC143C)
+
+        rewards = f'''**{db["Enemy"]["Name"] if db["User"]["HP"] <= 0 else db["User"]["Name"]}**:\nEXP: {exp}\nMoney: {money}\n\n
+            **{db["Enemy"]["Name"] if db["User"]["HP"] > 0 else db["User"]["Name"]}**\nEXP: {int(exp / 2)}\nMoney: {int(money / 2)}\n\n'''
+
+        embed.add_field(name='Battle Rewards:', value=rewards)
+        await battle_channel.send(embed=embed)
+
+        await asyncio.sleep(10)
         await battle_channel.delete()
+
+        user = await get_user_information(database=self.bot.db, user_id=ctx.author.id)
+        enemy_info = await get_user_information(database=self.bot.db, user_id=enemy.id)
+
+        await check_levelup(database=self.bot.db, fakemon_id=user["primaryfakemon"])
+        await check_levelup(database=self.bot.db, fakemon_id=enemy_info["primaryfakemon"])
 
 
 def setup(bot):

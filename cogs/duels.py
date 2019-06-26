@@ -31,27 +31,27 @@ class Duels(commands.Cog):
         with Image.open("cogs/battlescene.png") as bs:
 
             if user_hp >= 100:
-                user_hp = "100"
+                user_hp_label = "100"
             elif user_hp >= 10:
-                user_hp = f"0{user_hp}"
-            elif user_hp >= 0:
-                user_hp = f"00{user_hp}"
+                user_hp_label = f"0{user_hp}"
+            elif user_hp > 0:
+                user_hp_label = f"00{user_hp}"
             else:
-                user_hp = 000
+                user_hp_label = "000"
 
             if enemy_hp >= 100:
-                enemy_hp = "100"
+                enemy_hp_label = "100"
             elif enemy_hp >= 10:
-                enemy_hp = f"0{enemy_hp}"
-            elif enemy_hp >= 0:
-                enemy_hp = f"00{enemy_hp}"
+                enemy_hp_label = f"0{enemy_hp}"
+            elif enemy_hp > 0:
+                enemy_hp_label = f"00{enemy_hp}"
             else:
-                enemy_hp = 000
+                enemy_hp_label = "000"
 
-            with Image.open(f"hp_bars/{user_hp}.png") as hp:
+            with Image.open(f"hp_bars/{user_hp_label}.png") as hp:
                 bs.paste(hp, (315, 171), mask=hp)
 
-            with Image.open(f"hp_bars/{enemy_hp}.png") as hp:
+            with Image.open(f"hp_bars/{enemy_hp_label}.png") as hp:
                 bs.paste(hp, (31, 39), mask=hp)
 
             with Image.open(BytesIO(user_sprite)) as sprite:
@@ -120,8 +120,6 @@ class Duels(commands.Cog):
             else:
                 user_turn = "User"
                 enemy_user = "Enemy"
-
-            print(user_turn, enemy_user)
 
             current_user = ctx.author if user_turn == "User" else enemy
 
@@ -192,6 +190,7 @@ class Duels(commands.Cog):
                         break
                     except asyncio.TimeoutError:
                         timeout = True
+
         print("BONGO")
         # TODO: Add victory shit
 

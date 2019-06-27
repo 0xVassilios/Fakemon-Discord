@@ -239,7 +239,7 @@ class Duels(commands.Cog):
             if db["Enemy"]["HP"] <= 0:
                 break
 
-            await asyncio.sleep(2)
+            await asyncio.sleep(5)
 
             # This way we can switch who is the current user that is playing.
             if user_turn == "User":

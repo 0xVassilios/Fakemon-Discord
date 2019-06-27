@@ -17,7 +17,7 @@ class Inventory(commands.Cog):
         """
         embed = discord.Embed(colour=0xDC143C)
         embed.add_field(name="Inventory System",
-                        value="In order to use your inventory write \"f!inventory show (fakemon/items/moves) (page number)\".")
+                        value="In order to use your inventory write \"f!inventory (fakemon/items/moves) (page number)\".")
         await ctx.send(embed=embed)
 
     @inventory.command()

@@ -37,21 +37,26 @@ class WildFakemon(commands.Cog):
                     def check(m):
                         m = m.content.split(" ")
                         user_answer = " ".join(m[1:])
-                        print(user_answer, answer)
+
                         return m[0] == "f!catch" and user_answer.lower() == answer.lower()
 
                     try:
                         message = await self.bot.wait_for('message', check=check, timeout=180.0)
+                        await message.delete()
                         fakemon_id = await add_fakemon_to_database(database=self.bot.db, owner_id=message.author.id, fakemon_name=fakemon["name"], starter=False)
                         await add_fakemon_to_inventory(database=self.bot.db, owner_id=message.author.id, fakemon_id=fakemon_id)
 
                         embed = discord.Embed(
                             title=f"{message.author.name} has captured the {fakemon['name']}!", colour=0xDC143C)
                         await fakemon_embed.edit(embed=embed)
+                        await asyncio.sleep(5)
+                        await message.channel.purge()
                     except asyncio.TimeoutError:
                         embed = discord.Embed(
                             title=f"{fakemon['name']} has run away!", colour=0xDC143C)
                         await fakemon_embed.edit(embed=embed)
+                        await asyncio.sleep(5)
+                        await message.channel.purge()
                 except:
                     pass
 

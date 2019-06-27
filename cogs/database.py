@@ -1,4 +1,4 @@
-from cogs.fakemon import get_fakemon_information, calculate_exp_needed, check_levelup
+from cogs.fakemon import get_fakemon_information, calculate_exp_needed, check_levelup, get_fakemon
 import asyncio
 import asyncpg
 import random
@@ -60,12 +60,20 @@ async def add_fakemon_to_database(database, owner_id, fakemon_name, starter):
     if starter is True:
         level = 5
         xp = 0
+        moves = []
     else:
         level = random.randint(5, 51)
         xp_needed = await calculate_exp_needed(level=level)
         xp = random.randint(0, level + 1)
 
-    await database.execute('INSERT INTO ownedfakemon("ownerid", "name", "level", "xp", "moves", "iv") VALUES($1, $2, $3, $4, $5, $6) RETURNING fakemonid;', owner_id, fakemon_name, level, xp, [], random.randint(50, 100))
+        fakemon = await get_fakemon(database=database, fakemon=fakemon_name)
+        fakemon_type = fakemon["type"].split("/")[0]
+
+        query = await database.fetch('SELECT moveid FROM moves WHERE movetype = $1 ORDER BY random() LIMIT 4', fakemon_type)
+
+        moves = [move["moveid"] for move in query]
+
+    await database.execute('INSERT INTO ownedfakemon("ownerid", "name", "level", "xp", "moves", "iv") VALUES($1, $2, $3, $4, $5, $6) RETURNING fakemonid;', owner_id, fakemon_name, level, xp, moves, random.randint(50, 100))
 
     fakemon_id = await database.fetchrow('SELECT fakemonid FROM ownedfakemon ORDER BY fakemonid DESC LIMIT 1')
 

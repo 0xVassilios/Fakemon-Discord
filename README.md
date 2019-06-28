@@ -56,6 +56,15 @@ OFFICIAL DISCORD SERVER: https://discordapp.com/invite/yUtXM8F
 - teach (fakemon) (move) : Teaches your selected Fakemon a move, if compatible.
 - trade (your fakemon) (user) (user's fakemon) : Trades Fakemon.
 
+## How to set it up.
+1. Download all the files in the repository.
+2. Download PostgreSQL.
+3. Make a database called "fakemon" then import the .dump file using psql.
+4. Download Python.
+5. Download all the libraries required.
+6. Rename "passwords_example.json" to "passwords.json".
+7. Open "passwords.json" and add your password.
+8. Open a terminal and type "python main.py"
 
 
 ## Credits

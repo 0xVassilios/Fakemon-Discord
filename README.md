@@ -1,4 +1,14 @@
-![image](https://i.imgur.com/zzQcW4H.png)
+<div align="center">
+    <br />
+    <p>
+        <img src="https://i.imgur.com/zzQcW4H.png">
+        <br />
+        <img src="https://img.shields.io/github/issues/VasVog/Fakemon-Discord.svg">
+        <img src="https://img.shields.io/github/stars/VasVog/Fakemon-Discord.svg">
+        <img src="https://img.shields.io/github/last-commit/VasVog/Fakemon-Discord.svg">
+    </p>
+</div>
+
 Fakemon refers to non-canonical Pokemon character sprites and artworks created by fans of the popular Japanese franchise. This is a discord bot which utilises some of those characters to create a new Pokemon-like experience for old and new fans alike. This project was made for Discord Hack Week 2019 and we hope that you like our little project.
 
 OFFICIAL DISCORD SERVER: https://discordapp.com/invite/yUtXM8F

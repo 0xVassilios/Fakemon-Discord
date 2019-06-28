@@ -1,4 +1,14 @@
-![image](https://i.imgur.com/zzQcW4H.png)
+<div align="center">
+    <br />
+    <p>
+        <img src="https://i.imgur.com/zzQcW4H.png">
+        <br />
+        <img src="https://img.shields.io/github/issues/VasVog/Fakemon-Discord.svg">
+        <img src="https://img.shields.io/github/stars/VasVog/Fakemon-Discord.svg">
+        <img src="https://img.shields.io/github/last-commit/VasVog/Fakemon-Discord.svg">
+    </p>
+</div>
+
 Fakemon refers to non-canonical Pokemon character sprites and artworks created by fans of the popular Japanese franchise. This is a discord bot which utilises some of those characters to create a new Pokemon-like experience for old and new fans alike. This project was made for Discord Hack Week 2019 and we hope that you like our little project.
 
 OFFICIAL DISCORD SERVER: https://discordapp.com/invite/yUtXM8F
@@ -46,6 +56,15 @@ OFFICIAL DISCORD SERVER: https://discordapp.com/invite/yUtXM8F
 - teach (fakemon) (move) : Teaches your selected Fakemon a move, if compatible.
 - trade (your fakemon) (user) (user's fakemon) : Trades Fakemon.
 
+## How to set it up.
+1. Download all the files in the repository.
+2. Download PostgreSQL.
+3. Make a database called "fakemon" then import the .dump file using psql.
+4. Download Python.
+5. Download all the libraries required.
+6. Rename "passwords_example.json" to "passwords.json".
+7. Open "passwords.json" and add your password.
+8. Open a terminal and type "python main.py"
 
 
 ## Credits
